@@ -269,11 +269,16 @@ def calculate():
     interest_total      = []
 
     for m in range(months):
-        # Available
+        # Available — matches sheet exactly:
+        # Month 1: just capital deployed
+        # Month m>1: Profit[m-1] + Capital[m] + EMI_total[m-1] - Interest_per_batch[m-1] - Withdrawal[m-1]
+        # Principal repayment = EMI_total[m-1] - Interest_per_batch[m-1]
+        # Previous available is fully deployed (no carryover)
         if m == 0:
             avail = cap[m]
         else:
-            avail = amount_available[m-1] + profit_loss[m-1] + cap[m] - wdraw[m-1]
+            prev_int_per_batch = sum(int_batches[n][m-1] for n in TENURES)
+            avail = profit_loss[m-1] + cap[m] + emi_received_total[m-1] - prev_int_per_batch - wdraw[m-1]
         amount_available.append(avail)
 
         # Disbursed (gross, inflated by PF)
@@ -329,9 +334,9 @@ def calculate():
         pf_list.append(pf)
         gst_list.append(pf * 18.0 / 118.0)
 
-        # Bad Debt — only on current month's fresh disbursement + this month's newly generated interest
-        curr_month_int = sum(int_batches[n][m] for n in TENURES)
-        bad_debt_list.append((total_disb + curr_month_int) * (1.0 - t0_col))
+        # Bad Debt — matches sheet: (Disbursed + Interest_Total_Rolling) * (1 - t0)
+        # Uses rolling interest total (all active batches), same as sheet row 10
+        bad_debt_list.append((total_disb + int_total_m) * (1.0 - t0_col))
 
         # Recovery
         rec = 0.0
