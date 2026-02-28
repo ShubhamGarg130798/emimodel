@@ -269,11 +269,6 @@ def calculate():
     interest_total      = []
 
     for m in range(months):
-        # Available — matches sheet exactly:
-        # Month 1: just capital deployed
-        # Month m>1: Profit[m-1] + Capital[m] + EMI_total[m-1] - Interest_per_batch[m-1] - Withdrawal[m-1]
-        # Principal repayment = EMI_total[m-1] - Interest_per_batch[m-1]
-        # Previous available is fully deployed (no carryover)
         if m == 0:
             avail = cap[m]
         else:
@@ -291,7 +286,7 @@ def calculate():
             disb_batches[n].append(td)
             eb = td * emi_factors[n]
             emi_batches[n].append(eb)
-            ib = ((eb * n) - td) / n   # total interest for this batch spread over n months
+            ib = ((eb * n) - td) / n
             int_batches[n].append(ib)
 
         # Customers
@@ -318,7 +313,7 @@ def calculate():
         emi_total_m = 0.0
         int_total_m = 0.0
         for n in TENURES:
-            start = max(0, m - n + 1)          # rolling window = tenure
+            start = max(0, m - n + 1)
             emi_n = sum(emi_batches[n][start:m+1])
             int_n = sum(int_batches[n][start:m+1])
             emi_recv_by_tranche[n].append(emi_n)
@@ -334,8 +329,7 @@ def calculate():
         pf_list.append(pf)
         gst_list.append(pf * 18.0 / 118.0)
 
-        # Bad Debt — matches sheet: (Disbursed + Interest_Total_Rolling) * (1 - t0)
-        # Uses rolling interest total (all active batches), same as sheet row 10
+        # Bad Debt
         bad_debt_list.append((total_disb + int_total_m) * (1.0 - t0_col))
 
         # Recovery
@@ -435,20 +429,20 @@ def kpi(color, label, value, trend, icon):
         <div class="kpi-value">{value}</div>
         <div class="kpi-trend">{trend}</div></div>"""
 
-c1,c2,c3,c4 = st.columns(4, gap="small")
+# ── ROW 1: 4 cards — Capital, Final AUM, Total Customers, Total Interest ──────
+c1, c2, c3, c4 = st.columns(4, gap="small")
 with c1: st.markdown(kpi("blue",   "Capital Deployed",     f"₹{total_capital:.1f} Cr",            f"Over {num_months} months",      "💰"), unsafe_allow_html=True)
 with c2: st.markdown(kpi("green",  "Final Month AUM",      f"₹{final_aum:.2f} Cr",                f"Month {num_months}",             "🏆"), unsafe_allow_html=True)
-with c3:
-    pc, pi = ("green","📈") if total_profit >= 0 else ("red","📉")
-    st.markdown(kpi(pc, "Net Profit / Loss", f"₹{total_profit:.2f} Cr", "Cumulative P&L", pi), unsafe_allow_html=True)
-with c4: st.markdown(kpi("indigo", "Total Customers",      f"{df['customers'].sum():,}",           "Loans originated",               "👥"), unsafe_allow_html=True)
+with c3: st.markdown(kpi("indigo", "Total Customers",      f"{df['customers'].sum():,}",           "Loans originated",               "👥"), unsafe_allow_html=True)
+with c4: st.markdown(kpi("purple", "Total Interest",       f"₹{df['interest_total'].sum():.2f} Cr","All tranches combined",          "💵"), unsafe_allow_html=True)
 
 st.markdown('<div style="margin-top:1.5rem;"></div>', unsafe_allow_html=True)
-c5,c6,c7,c8 = st.columns(4, gap="small")
-with c5: st.markdown(kpi("purple", "Total Interest",       f"₹{df['interest_total'].sum():.2f} Cr","All tranches combined",          "💵"), unsafe_allow_html=True)
-with c6: st.markdown(kpi("blue",   "Total Processing Fees",f"₹{df['pf'].sum():.2f} Cr",           "PF revenue",                     "📄"), unsafe_allow_html=True)
-with c7: st.markdown(kpi("orange", "Total Cost of Funds",  f"₹{df['cost_of_funds'].sum():.2f} Cr","Cumulative CoF",                 "💼"), unsafe_allow_html=True)
-with c8: st.markdown(kpi("teal",   "Total Disbursed",      f"₹{df['amount_disbursed'].sum():.2f} Cr","All months combined",         "📤"), unsafe_allow_html=True)
+
+# ── ROW 2: 3 cards — Processing Fees, Cost of Funds, Total Disbursed ──────────
+c5, c6, c7 = st.columns(3, gap="small")
+with c5: st.markdown(kpi("blue",   "Total Processing Fees",f"₹{df['pf'].sum():.2f} Cr",           "PF revenue",                     "📄"), unsafe_allow_html=True)
+with c6: st.markdown(kpi("orange", "Total Cost of Funds",  f"₹{df['cost_of_funds'].sum():.2f} Cr","Cumulative CoF",                 "💼"), unsafe_allow_html=True)
+with c7: st.markdown(kpi("teal",   "Total Disbursed",      f"₹{df['amount_disbursed'].sum():.2f} Cr","All months combined",         "📤"), unsafe_allow_html=True)
 
 # ── CHARTS ────────────────────────────────────────────────────────────────────
 st.markdown('<div class="section-header">Portfolio Insights</div>', unsafe_allow_html=True)
