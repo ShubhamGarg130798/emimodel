@@ -171,9 +171,9 @@ with st.sidebar.expander("🔄 Capital Withdrawal (₹ Crores)", expanded=False)
 # ── TRANCHE SPLIT ─────────────────────────────────────────────────────────────
 with st.sidebar.expander("📐 Tranche Split (%) — Same Every Month", expanded=True):
     st.markdown("**Splits how each month's disbursement is allocated across tenures.**")
-    t3  = st.number_input("🔵 3-Month  Tranche (%)", 0.0, 100.0, 40.0, 5.0, key="ts3")
-    t6  = st.number_input("🟢 6-Month  Tranche (%)", 0.0, 100.0, 30.0, 5.0, key="ts6")
-    t9  = st.number_input("🟠 9-Month  Tranche (%)", 0.0, 100.0, 20.0, 5.0, key="ts9")
+    t3  = st.number_input("🔵 3-Month  Tranche (%)", 0.0, 100.0, 50.0, 5.0, key="ts3")
+    t6  = st.number_input("🟢 6-Month  Tranche (%)", 0.0, 100.0, 25.0, 5.0, key="ts6")
+    t9  = st.number_input("🟠 9-Month  Tranche (%)", 0.0, 100.0, 15.0, 5.0, key="ts9")
     t12 = st.number_input("🟣 12-Month Tranche (%)", 0.0, 100.0, 10.0, 5.0, key="ts12")
     tranche_total = t3 + t6 + t9 + t12
     if abs(tranche_total - 100.0) > 0.01:
@@ -187,7 +187,7 @@ TENURES = [3, 6, 9, 12]
 with st.sidebar.expander("📈 Revenue Parameters", expanded=False):
     processing_fees_pct        = st.number_input("Processing Fees (%)",        0.0,  30.0, 11.8, 0.1)
     monthly_interest_rate_pct  = st.number_input("Monthly Interest Rate (%)",  0.0,  50.0, 10.0, 0.5)
-    marketing_rate_pct         = st.number_input("Marketing Expenses (%)",     0.0,  20.0,  5.0, 0.1)
+    marketing_rate_pct         = st.number_input("Marketing Expenses (%)",     0.0,  20.0,  3.0, 0.1)
     cost_of_funds_rate_pct     = st.number_input("Cost of Funds (% monthly)",  0.0,  30.0,  3.0, 0.1)
 processing_fees       = processing_fees_pct       / 100
 monthly_interest_rate = monthly_interest_rate_pct / 100
@@ -198,7 +198,7 @@ with st.sidebar.expander("🎯 Loan Parameters", expanded=False):
     avg_ticket_size = st.number_input("Average Loan Ticket (₹)", 1000, 5000000, 300000, 10000)
 
 with st.sidebar.expander("🏢 Operational Expenses", expanded=False):
-    opex_month1_value = st.number_input("Month 1 OpEx (₹)", 0, 50000000, 1500000, 50000)
+    opex_month1_value = st.number_input("Month 1 OpEx (₹)", 0, 50000000, 2500000, 50000)
     opex_values = [opex_month1_value / 1e7]
     opex_types  = ['fixed']
     for i in range(1, num_months):
@@ -215,12 +215,12 @@ with st.sidebar.expander("🏢 Operational Expenses", expanded=False):
 with st.sidebar.expander("📊 Collection Parameters", expanded=False):
     t0_col  = st.number_input("T+0  Collection Rate (%)", 0, 100, 80, 1) / 100
     t30_col = st.number_input("T+30 Collection Rate (%)", 0, 100,  5, 1) / 100
-    t60_col = st.number_input("T+60 Collection Rate (%)", 0, 100,  3, 1) / 100
+    t60_col = st.number_input("T+60 Collection Rate (%)", 0, 100,  4, 1) / 100
     t90_col = st.number_input("T+90 Collection Rate (%)", 0, 100,  2, 1) / 100
     total_col_pct = (t0_col + t30_col + t60_col + t90_col) * 100
     st.error(f"⚠️ Total: {total_col_pct:.1f}% — exceeds 100%!") if total_col_pct > 100 else st.success(f"✅ Total collection: {total_col_pct:.1f}%")
     api_cost_80 = st.number_input("API Cost per Non-Converted Lead (₹)", 0, 500, 10,  5)
-    api_cost_20 = st.number_input("API Cost per Converted Customer (₹)",  0, 500, 35, 5)
+    api_cost_20 = st.number_input("API Cost per Converted Customer (₹)",  0, 500, 40, 5)
 
 # ── EMI FACTORS ───────────────────────────────────────────────────────────────
 def calc_emi_factor(rate, n):
